@@ -114,6 +114,91 @@ data:
 
 ---
 
+## Automation examples
+
+The entity ID for the power limit slider follows the pattern `number.<device_name>_power_limit`.  
+With the default device name **SMA Sunny Boy** this becomes `number.sma_sunny_boy_power_limit`.
+
+### Limit power when electricity return price is negative (Tibber)
+
+Automatically sets the inverter to 0 % when you are paying to feed back into the grid,
+and restores it to 100 % when the price becomes positive again.
+
+```yaml
+description: "Limit SMA output on negative electricity price"
+mode: single
+triggers:
+  - trigger: numeric_state
+    entity_id: sensor.tibber_current_price
+    below: 0
+    id: price_negative
+  - trigger: numeric_state
+    entity_id: sensor.tibber_current_price
+    above: 0
+    id: price_positive
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: price_negative
+        sequence:
+          - action: number.set_value
+            target:
+              entity_id: number.sma_sunny_boy_power_limit
+            data:
+              value: 0
+      - conditions:
+          - condition: trigger
+            id: price_positive
+        sequence:
+          - action: number.set_value
+            target:
+              entity_id: number.sma_sunny_boy_power_limit
+            data:
+              value: 100
+```
+
+### Limit output during peak hours
+
+Reduces output to 50 % between 17:00 and 21:00 (typical high-demand window) and
+resets to 100 % outside those hours.
+
+```yaml
+description: "Limit SMA output during peak hours"
+mode: single
+triggers:
+  - trigger: time
+    at: "17:00:00"
+    id: peak_start
+  - trigger: time
+    at: "21:00:00"
+    id: peak_end
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: peak_start
+        sequence:
+          - action: number.set_value
+            target:
+              entity_id: number.sma_sunny_boy_power_limit
+            data:
+              value: 50
+      - conditions:
+          - condition: trigger
+            id: peak_end
+        sequence:
+          - action: number.set_value
+            target:
+              entity_id: number.sma_sunny_boy_power_limit
+            data:
+              value: 100
+```
+
+---
+
 ## Register map
 
 The following SMA Modbus registers are used (all read with FC 0x03):
