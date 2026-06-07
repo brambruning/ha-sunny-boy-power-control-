@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import timedelta
 
@@ -44,6 +45,8 @@ class SMACoordinator(DataUpdateCoordinator[dict]):
         self._installer_password: str = conf.get(CONF_INSTALLER_PASSWORD, "")
         scan_interval: int = conf.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
+        self._modbus_lock = asyncio.Lock()
+
         super().__init__(
             hass,
             _LOGGER,
@@ -60,43 +63,46 @@ class SMACoordinator(DataUpdateCoordinator[dict]):
         )
 
     async def _async_update_data(self) -> dict:
-        client = self._make_client()
-        try:
-            await client.connect()
-            data = await client.read_all_data()
-            data["last_updated"] = dt_util.now()
-            return data
-        except SMAModbusError as exc:
-            raise UpdateFailed(f"Modbus error: {exc}") from exc
-        except Exception as exc:
-            raise UpdateFailed(f"Unexpected error: {exc}") from exc
-        finally:
-            await client.disconnect()
+        async with self._modbus_lock:
+            client = self._make_client()
+            try:
+                await client.connect()
+                data = await client.read_all_data()
+                data["last_updated"] = dt_util.now()
+                return data
+            except SMAModbusError as exc:
+                raise UpdateFailed(f"Modbus error: {exc}") from exc
+            except Exception as exc:
+                raise UpdateFailed(f"Unexpected error: {exc}") from exc
+            finally:
+                await client.disconnect()
 
     async def async_set_power_limit_percent(self, percent: float) -> None:
         """Write a percentage-based power limit to the inverter."""
-        client = self._make_client()
-        try:
-            await client.connect()
-            await client.set_power_limit_percent(percent, self._installer_password)
-        except SMAModbusError as exc:
-            _LOGGER.error("Failed to set power limit: %s", exc)
-            raise
-        finally:
-            await client.disconnect()
+        async with self._modbus_lock:
+            client = self._make_client()
+            try:
+                await client.connect()
+                await client.set_power_limit_percent(percent, self._installer_password)
+            except SMAModbusError as exc:
+                _LOGGER.error("Failed to set power limit: %s", exc)
+                raise
+            finally:
+                await client.disconnect()
 
         await self.async_request_refresh()
 
     async def async_set_power_limit_watt(self, watts: int) -> None:
         """Write a Watt-based power limit to the inverter."""
-        client = self._make_client()
-        try:
-            await client.connect()
-            await client.set_power_limit_watt(watts, self._installer_password)
-        except SMAModbusError as exc:
-            _LOGGER.error("Failed to set power limit: %s", exc)
-            raise
-        finally:
-            await client.disconnect()
+        async with self._modbus_lock:
+            client = self._make_client()
+            try:
+                await client.connect()
+                await client.set_power_limit_watt(watts, self._installer_password)
+            except SMAModbusError as exc:
+                _LOGGER.error("Failed to set power limit: %s", exc)
+                raise
+            finally:
+                await client.disconnect()
 
         await self.async_request_refresh()

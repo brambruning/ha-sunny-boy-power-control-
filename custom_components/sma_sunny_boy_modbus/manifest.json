@@ -1,7 +1,7 @@
 {
   "domain": "sma_sunny_boy_modbus",
   "name": "SMA Sunny Boy Power Controller",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "documentation": "https://github.com/brambruning/ha-sunny-boy-power-control-",
   "issue_tracker": "https://github.com/brambruning/ha-sunny-boy-power-control-/issues",
   "iot_class": "local_polling",

@@ -5,6 +5,8 @@
 A local-polling Home Assistant integration for **SMA Sunny Boy** solar inverters using **Modbus TCP**.  
 No cloud account required — communicates directly with the inverter on your local network.
 
+![Device overview](images/entities.png)
+
 ---
 
 ## Features
@@ -86,6 +88,8 @@ Without this setting, Modbus write commands for the power limit are silently ign
 | Device name | `SMA Sunny Boy` | Friendly name shown in HA |
 
 Home Assistant will attempt a test connection. If it fails, check the IP address and ensure Modbus TCP is enabled.
+
+![Configuration](images/settings.png)
 
 ---
 

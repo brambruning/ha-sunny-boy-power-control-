@@ -73,7 +73,7 @@ class SMAPowerLimitNumber(CoordinatorEntity[SMACoordinator], NumberEntity):
     def native_value(self) -> float | None:
         if self.coordinator.data is None:
             return None
-        val = self.coordinator.data.get("power_limit_percent_cfg")
+        val = self.coordinator.data.get("power_limit_percent")
         return float(val) if val is not None else None
 
     async def async_set_native_value(self, value: float) -> None:
