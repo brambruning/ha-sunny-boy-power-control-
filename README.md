@@ -1,5 +1,7 @@
 # SMA Sunny Boy Power Controller — Home Assistant Integration
 
+<img src="logo.svg" alt="SMA Sunny Boy Power Controller" width="120" align="right"/>
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
 A local-polling Home Assistant integration for **SMA Sunny Boy** solar inverters using **Modbus TCP**.  
