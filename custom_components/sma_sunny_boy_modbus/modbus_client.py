@@ -358,6 +358,7 @@ class SMAModbusClient:
             "device_status_code": device_status_code,
             "nominal_power": nominal_power,
             "power_limit_percent": effective_percent,
+            "power_limit_percent_cfg": float(cfg_percent) if cfg_percent is not None else 100.0,
             "power_limit_watt": effective_watt,
             "power_mode": POWER_MODE_LABELS.get(mode_code, f"Unknown ({mode_code})") if mode_code is not None else "Unknown",
             "power_mode_code": mode_code,

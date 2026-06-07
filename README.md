@@ -1,4 +1,4 @@
-# SMA Sunny Boy Modbus — Home Assistant Integration
+# SMA Sunny Boy Power Controller — Home Assistant Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
@@ -60,7 +60,7 @@ Without this setting, Modbus write commands for the power limit are silently ign
 1. Open **HACS** in Home Assistant.
 2. Go to **Integrations → ⋮ → Custom repositories**.
 3. Add `https://github.com/brambruning/ha-sunny-boy-power-control-` with category **Integration**.
-4. Search for **SMA Sunny Boy Modbus** and click **Download**.
+4. Search for **SMA Sunny Boy Power Controller** and click **Download**.
 5. Restart Home Assistant.
 
 ### Manual
@@ -73,7 +73,7 @@ Without this setting, Modbus write commands for the power limit are silently ign
 ## Configuration
 
 1. Go to **Settings → Devices & Services → + Add Integration**.
-2. Search for **SMA Sunny Boy Modbus**.
+2. Search for **SMA Sunny Boy Power Controller**.
 3. Fill in the form:
 
 | Field | Default | Description |

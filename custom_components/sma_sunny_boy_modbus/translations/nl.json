@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "SMA Sunny Boy Modbus",
+        "title": "SMA Sunny Boy Power Controller",
         "description": "Configureer je SMA Sunny Boy omvormer. Zorg dat Modbus TCP is ingeschakeld in de omvormerinstellingen.",
         "data": {
           "host": "IP-adres",

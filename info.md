@@ -1,4 +1,4 @@
-# SMA Sunny Boy Modbus
+# SMA Sunny Boy Power Controller
 
 Local Modbus TCP integration for SMA Sunny Boy solar inverters.
 
