@@ -138,6 +138,13 @@ SENSORS: tuple[SMAEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL_INCREASING,
         icon="mdi:timer-outline",
     ),
+    SMAEntityDescription(
+        key="last_updated",
+        data_key="last_updated",
+        name="Last Updated",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        icon="mdi:clock-outline",
+    ),
 )
 
 

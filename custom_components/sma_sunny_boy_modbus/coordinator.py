@@ -8,6 +8,7 @@ from datetime import timedelta
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_HOST,
@@ -36,11 +37,12 @@ class SMACoordinator(DataUpdateCoordinator[dict]):
     """
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
-        self._host: str = entry.data[CONF_HOST]
-        self._port: int = entry.data.get(CONF_PORT, DEFAULT_PORT)
-        self._unit_id: int = entry.data.get(CONF_UNIT_ID, DEFAULT_UNIT_ID)
-        self._installer_password: str = entry.data.get(CONF_INSTALLER_PASSWORD, "")
-        scan_interval: int = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        conf = {**entry.data, **entry.options}
+        self._host: str = conf[CONF_HOST]
+        self._port: int = conf.get(CONF_PORT, DEFAULT_PORT)
+        self._unit_id: int = conf.get(CONF_UNIT_ID, DEFAULT_UNIT_ID)
+        self._installer_password: str = conf.get(CONF_INSTALLER_PASSWORD, "")
+        scan_interval: int = conf.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
         super().__init__(
             hass,
@@ -62,6 +64,7 @@ class SMACoordinator(DataUpdateCoordinator[dict]):
         try:
             await client.connect()
             data = await client.read_all_data()
+            data["last_updated"] = dt_util.now()
             return data
         except SMAModbusError as exc:
             raise UpdateFailed(f"Modbus error: {exc}") from exc

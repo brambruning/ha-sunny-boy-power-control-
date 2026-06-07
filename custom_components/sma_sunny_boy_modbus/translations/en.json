@@ -21,5 +21,21 @@
     "abort": {
       "already_configured": "This inverter is already configured."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SMA Sunny Boy Power Controller",
+        "description": "Update the settings for your SMA Sunny Boy inverter.",
+        "data": {
+          "host": "IP Address",
+          "port": "Modbus Port",
+          "unit_id": "Modbus Unit ID",
+          "installer_password": "Grid Guard Code (optional — required for power limit control)",
+          "scan_interval": "Update interval (seconds)",
+          "device_name": "Device name"
+        }
+      }
+    }
   }
 }

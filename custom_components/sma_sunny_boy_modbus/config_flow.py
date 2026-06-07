@@ -7,7 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant
 
 from .const import (
@@ -68,13 +68,16 @@ class SMAConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    @staticmethod
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        return SMAOptionsFlow(config_entry)
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            # Prevent duplicate entries for the same host/unit
             await self.async_set_unique_id(
                 f"{user_input[CONF_HOST]}:{user_input.get(CONF_PORT, DEFAULT_PORT)}:{user_input.get(CONF_UNIT_ID, DEFAULT_UNIT_ID)}"
             )
@@ -91,5 +94,41 @@ class SMAConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=STEP_USER_SCHEMA,
+            errors=errors,
+        )
+
+
+class SMAOptionsFlow(OptionsFlow):
+    """Handle options for SMA Sunny Boy Power Controller."""
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        self._config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+
+        current = {**self._config_entry.data, **self._config_entry.options}
+
+        if user_input is not None:
+            errors = await _validate_connection(self.hass, user_input)
+            if not errors:
+                return self.async_create_entry(title="", data=user_input)
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_HOST, default=current.get(CONF_HOST, "")): str,
+                vol.Optional(CONF_PORT, default=current.get(CONF_PORT, DEFAULT_PORT)): int,
+                vol.Optional(CONF_UNIT_ID, default=current.get(CONF_UNIT_ID, DEFAULT_UNIT_ID)): int,
+                vol.Optional(CONF_INSTALLER_PASSWORD, default=current.get(CONF_INSTALLER_PASSWORD, "")): str,
+                vol.Optional(CONF_SCAN_INTERVAL, default=current.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)): int,
+                vol.Optional(CONF_DEVICE_NAME, default=current.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME)): str,
+            }
+        )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=schema,
             errors=errors,
         )

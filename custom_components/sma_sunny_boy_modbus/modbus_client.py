@@ -320,19 +320,25 @@ class SMAModbusClient:
 
         # ── Power limit state ─────────────────────────────────────────────
         mode_code = u32(REG_POWER_MODE_STATUS)
+        cfg_mode = u32(REG_ACTIVE_POWER_MODE)
         cfg_watt = u32(REG_POWER_LIMIT_WATT)
         cfg_percent = u32(REG_POWER_LIMIT_PERCENT)
         sp_watt = u32(REG_SETPOINT_WATT)
         sp_percent = u32(REG_SETPOINT_PERCENT)
 
+        # Prefer the config register (what we wrote) over the status register,
+        # because some SMA firmware versions keep reporting EXTERNAL in 30835
+        # even after we've written PERCENT mode to 40210.
+        active_mode = cfg_mode if cfg_mode is not None else mode_code
+
         effective_watt: Optional[int] = None
         effective_percent: Optional[float] = None
 
-        if mode_code == POWER_MODE_WATT:
+        if active_mode == POWER_MODE_WATT:
             effective_watt = cfg_watt
-        elif mode_code == POWER_MODE_PERCENT:
+        elif active_mode == POWER_MODE_PERCENT:
             effective_percent = float(cfg_percent) if cfg_percent is not None else None
-        elif mode_code in (POWER_MODE_EXTERNAL, POWER_MODE_ANALOG, POWER_MODE_DIGITAL):
+        elif active_mode in (POWER_MODE_EXTERNAL, POWER_MODE_ANALOG, POWER_MODE_DIGITAL):
             effective_watt = sp_watt
             effective_percent = float(sp_percent) if sp_percent is not None else None
 
@@ -360,8 +366,8 @@ class SMAModbusClient:
             "power_limit_percent": effective_percent,
             "power_limit_percent_cfg": float(cfg_percent) if cfg_percent is not None else 100.0,
             "power_limit_watt": effective_watt,
-            "power_mode": POWER_MODE_LABELS.get(mode_code, f"Unknown ({mode_code})") if mode_code is not None else "Unknown",
-            "power_mode_code": mode_code,
+            "power_mode": POWER_MODE_LABELS.get(active_mode, f"Unknown ({active_mode})") if active_mode is not None else "Unknown",
+            "power_mode_code": active_mode,
         }
 
     async def set_power_limit_percent(
