@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SMA Sunny Boy Modbus",
+        "description": "Configure your SMA Sunny Boy inverter. Make sure Modbus TCP is enabled in the inverter settings.",
+        "data": {
+          "host": "IP Address",
+          "port": "Modbus Port",
+          "unit_id": "Modbus Unit ID",
+          "installer_password": "Grid Guard Code (optional — required for power limit control)",
+          "scan_interval": "Update interval (seconds)",
+          "device_name": "Device name"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the inverter. Check the IP address and ensure Modbus TCP is enabled.",
+      "unknown": "Unexpected error. See the Home Assistant logs for details."
+    },
+    "abort": {
+      "already_configured": "This inverter is already configured."
+    }
+  }
+}

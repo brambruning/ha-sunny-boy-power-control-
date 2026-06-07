@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SMA Sunny Boy Modbus",
+        "description": "Configureer je SMA Sunny Boy omvormer. Zorg dat Modbus TCP is ingeschakeld in de omvormerinstellingen.",
+        "data": {
+          "host": "IP-adres",
+          "port": "Modbus poort",
+          "unit_id": "Modbus Unit ID",
+          "installer_password": "Grid Guard code (optioneel — vereist voor vermogenslimiet instellen)",
+          "scan_interval": "Verversingsinterval (seconden)",
+          "device_name": "Apparaatnaam"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan geen verbinding maken met de omvormer. Controleer het IP-adres en zorg dat Modbus TCP is ingeschakeld.",
+      "unknown": "Onverwachte fout. Bekijk de Home Assistant logs voor details."
+    },
+    "abort": {
+      "already_configured": "Deze omvormer is al geconfigureerd."
+    }
+  }
+}
