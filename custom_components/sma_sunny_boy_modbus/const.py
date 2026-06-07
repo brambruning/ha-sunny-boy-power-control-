@@ -80,7 +80,7 @@ DEVICE_STATUS_LABELS = {
 # Each tuple: (start_address, count).  Grouped to minimise TCP round-trips.
 READ_BATCHES = [
     (30201, 6),    # device status, nominal power
-    (30511, 16),   # total yield, daily yield, operating time
+    (30513, 12),   # total yield, daily yield, operating time
     (30773, 36),   # real power, AC voltage, current, frequency
     (30833, 10),   # power mode status, setpoints
     (30951, 6),    # temperature
