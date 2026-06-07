@@ -326,21 +326,30 @@ class SMAModbusClient:
         sp_watt = u32(REG_SETPOINT_WATT)
         sp_percent = u32(REG_SETPOINT_PERCENT)
 
-        # Prefer the config register (what we wrote) over the status register,
-        # because some SMA firmware versions keep reporting EXTERNAL in 30835
-        # even after we've written PERCENT mode to 40210.
+        # cfg_mode (40210) may revert to EXTERNAL after the Grid Guard session
+        # expires, even though the limit written to cfg_percent (40214) persists
+        # and the inverter continues to honour it. Always use cfg_percent as the
+        # authoritative percentage value; fall back to sp_percent only when
+        # cfg_percent is not available.
         active_mode = cfg_mode if cfg_mode is not None else mode_code
 
-        effective_watt: Optional[int] = None
-        effective_percent: Optional[float] = None
+        _LOGGER.debug(
+            "Power registers — mode_status(30835)=%s cfg_mode(40210)=%s "
+            "cfg_pct(40214)=%s sp_pct(30839)=%s cfg_watt(40212)=%s sp_watt(30837)=%s",
+            mode_code, cfg_mode, cfg_percent, sp_percent, cfg_watt, sp_watt,
+        )
 
+        effective_percent: Optional[float] = (
+            float(cfg_percent) if cfg_percent is not None
+            else float(sp_percent) if sp_percent is not None
+            else None
+        )
+
+        effective_watt: Optional[int] = None
         if active_mode == POWER_MODE_WATT:
             effective_watt = cfg_watt
-        elif active_mode == POWER_MODE_PERCENT:
-            effective_percent = float(cfg_percent) if cfg_percent is not None else None
         elif active_mode in (POWER_MODE_EXTERNAL, POWER_MODE_ANALOG, POWER_MODE_DIGITAL):
             effective_watt = sp_watt
-            effective_percent = float(sp_percent) if sp_percent is not None else None
 
         if effective_watt is None and effective_percent is not None:
             effective_watt = round(nominal_power * (effective_percent / 100))
@@ -349,7 +358,7 @@ class SMAModbusClient:
         if effective_watt is None:
             effective_watt = cfg_watt or nominal_power
         if effective_percent is None:
-            effective_percent = round((effective_watt / nominal_power) * 100, 1) if nominal_power else 100.0
+            effective_percent = 100.0
 
         return {
             "real_power": real_power,
